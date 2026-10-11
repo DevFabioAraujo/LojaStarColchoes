@@ -7,6 +7,9 @@ const state = {
   search: "",
   sort: "featured",
   cart: loadCart(),
+  currentUser: null,
+  authChecked: false,
+  authPromise: null,
 };
 
 const elements = {
@@ -21,9 +24,12 @@ const elements = {
   drawer: document.querySelector("#cart-drawer"),
   checkoutModal: document.querySelector("#checkout-modal"),
   checkoutSummary: document.querySelector("#checkout-summary"),
+  checkoutAccount: document.querySelector("#checkout-account"),
   checkoutForm: document.querySelector("#checkout-form"),
   checkoutError: document.querySelector("#checkout-error"),
   toast: document.querySelector("#toast"),
+  accountLink: document.querySelector("#account-link"),
+  headerLogout: document.querySelector("#header-logout"),
 };
 
 function loadCart() {
@@ -170,6 +176,54 @@ function showToast(message) {
   showToast.timeout = window.setTimeout(() => elements.toast.classList.remove("visible"), 2600);
 }
 
+async function refreshCurrentUser() {
+  const response = await fetch("/api/auth/me");
+  if (!response.ok) throw new Error("Não foi possível verificar sua conta.");
+  const result = await response.json();
+  state.currentUser = result.user;
+  state.authChecked = true;
+  if (state.currentUser) {
+    const destination = state.currentUser.role === "admin" ? "/admin" : state.currentUser.role === "seller" ? "/seller" : "/account";
+    elements.accountLink.textContent = state.currentUser.name;
+    elements.accountLink.href = destination;
+    elements.accountLink.title = state.currentUser.email;
+    elements.headerLogout.hidden = false;
+  } else {
+    elements.accountLink.textContent = "Entrar";
+    elements.accountLink.href = "/account";
+    elements.accountLink.removeAttribute("title");
+    elements.headerLogout.hidden = true;
+  }
+  return state.currentUser;
+}
+
+async function openCheckout() {
+  if (!state.authChecked) {
+    try {
+      await state.authPromise;
+    } catch (error) {
+      console.error("Não foi possível verificar a sessão antes do checkout.", error);
+      showToast("Não conseguimos verificar sua conta. Tente novamente.");
+      return;
+    }
+  }
+  if (!state.currentUser) {
+    window.location.assign("/account?returnTo=checkout");
+    return;
+  }
+  const count = state.cart.reduce((sum, item) => sum + item.quantity, 0);
+  if (!count) {
+    showToast("Sua sacola está vazia.");
+    return;
+  }
+  elements.checkoutSummary.textContent = `${count} ${count === 1 ? "item" : "itens"} · ${elements.subtotal.textContent} · Frete grátis`;
+  elements.checkoutAccount.innerHTML = `Compra vinculada a <strong>${escapeHtml(state.currentUser.name)}</strong> · ${escapeHtml(state.currentUser.email)}`;
+  closeCart();
+  elements.checkoutModal.hidden = false;
+  document.body.classList.add("no-scroll");
+  document.querySelector("#checkout-modal input").focus();
+}
+
 document.querySelector("#product-grid").addEventListener("click", event => {
   const button = event.target.closest("[data-add]");
   if (button) addToCart(button.dataset.add);
@@ -214,13 +268,17 @@ elements.cartItems.addEventListener("click", event => {
   }
 });
 
-document.querySelector("#checkout-open").addEventListener("click", () => {
-  const count = state.cart.reduce((sum, item) => sum + item.quantity, 0);
-  elements.checkoutSummary.textContent = `${count} ${count === 1 ? "item" : "itens"} · ${elements.subtotal.textContent} · Frete grátis`;
-  closeCart();
-  elements.checkoutModal.hidden = false;
-  document.body.classList.add("no-scroll");
-  document.querySelector("#checkout-modal input").focus();
+document.querySelector("#checkout-open").addEventListener("click", openCheckout);
+elements.headerLogout.addEventListener("click", async () => {
+  try {
+    const response = await fetch("/api/auth/logout", { method: "POST" });
+    if (!response.ok) throw new Error("Não foi possível encerrar a sessão.");
+    await refreshCurrentUser();
+    showToast("Você saiu da sua conta.");
+  } catch (error) {
+    console.error("Falha ao encerrar a sessão.", error);
+    showToast(error.message);
+  }
 });
 
 function closeCheckout() {
@@ -273,4 +331,20 @@ document.querySelector("#newsletter-form").addEventListener("submit", event => {
   event.currentTarget.reset();
 });
 
-fetchProducts();
+state.authPromise = refreshCurrentUser().catch(error => {
+  console.error("Não foi possível carregar a sessão.", error);
+  state.authChecked = true;
+  return null;
+});
+if (new URLSearchParams(window.location.search).get("checkout") === "1") {
+  Promise.all([state.authPromise, fetchProducts()]).then(([user]) => {
+    if (!user) {
+      window.location.replace("/account?returnTo=checkout");
+      return;
+    }
+    openCheckout();
+    window.history.replaceState({}, "", "/");
+  });
+} else {
+  fetchProducts();
+}

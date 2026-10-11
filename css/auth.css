@@ -1,0 +1,158 @@
+.account-link {
+  color: var(--green);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.account-logout {
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--green);
+  font-size: 10px;
+  cursor: pointer;
+}
+.header-actions [hidden] { display: none; }
+.account-page { min-height: 100vh; }
+.account-header {
+  min-height: 76px;
+  padding: 0 6.1%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--line);
+}
+.account-main {
+  width: min(100% - 36px, 520px);
+  margin: 62px auto;
+}
+.account-card {
+  padding: clamp(24px, 5vw, 42px);
+  border: 1px solid var(--line);
+  background: var(--white);
+}
+.account-card h1, .dashboard-heading h1 {
+  margin: 0 0 12px;
+  font-size: clamp(35px, 6vw, 48px);
+  line-height: 1.12;
+}
+.account-intro {
+  margin: 0 0 24px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.8;
+}
+.auth-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin: 25px 0 21px;
+  border-bottom: 1px solid var(--line);
+}
+.auth-tab {
+  padding: 12px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  font-size: 11px;
+  cursor: pointer;
+}
+.auth-tab.active {
+  border-bottom-color: var(--green);
+  color: var(--green);
+  font-weight: 700;
+}
+.account-card form label {
+  display: grid;
+  gap: 7px;
+  margin: 0 0 15px;
+  color: #50534c;
+  font-size: 10px;
+}
+.account-card form input {
+  width: 100%;
+  min-height: 43px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: #fffefa;
+  color: var(--ink);
+  font-size: 12px;
+}
+.account-card form input:focus {
+  border-color: var(--green);
+  outline: 2px solid #344b3d22;
+}
+.account-card form[hidden], .account-card[hidden] { display: none; }
+.account-submit { width: 100%; margin-top: 9px; }
+.account-submit:disabled { opacity: .6; cursor: wait; }
+.password-help, .account-footnote {
+  display: block;
+  color: var(--muted);
+  font-size: 9px;
+  line-height: 1.7;
+}
+.account-footnote {
+  margin: 22px 0 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+.form-error { min-height: 0; margin: 0 0 8px; color: #a64236; font-size: 10px; line-height: 1.6; }
+.form-success { margin: 0 0 8px; color: var(--green); font-size: 10px; line-height: 1.6; }
+.account-destination { width: 100%; margin: 0 0 28px; }
+.password-form { padding-top: 21px; border-top: 1px solid var(--line); }
+.password-form h2, .account-card>h2 {
+  margin: 0 0 17px;
+  font: 600 19px var(--font-display);
+  letter-spacing: -.03em;
+}
+.account-logout-large { width: 100%; margin-top: 14px; }
+.dashboard-main {
+  width: min(100% - 48px, 1050px);
+  margin: 62px auto;
+}
+.dashboard-heading { margin-bottom: 30px; }
+.dashboard-heading .eyebrow { margin-bottom: 13px; }
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr);
+  align-items: start;
+  gap: 22px;
+}
+.seller-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.seller-entry, .seller-empty {
+  display: grid;
+  gap: 5px;
+  padding: 14px 0;
+  border-top: 1px solid var(--line);
+  font-size: 11px;
+}
+.seller-entry span, .seller-entry small, .seller-empty { color: var(--muted); }
+.seller-entry small { font-size: 9px; }
+.dashboard-note {
+  margin: 25px 0 0;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.7;
+}
+.account-nav { display: flex; align-items: center; gap: 18px; font-size: 11px; }
+.account-nav>span { color: var(--muted); }
+.seller-dashboard { max-width: 800px; }
+.seller-dashboard .dashboard-heading { padding: 38px; border: 1px solid var(--line); background: var(--white); }
+.seller-dashboard .dashboard-note { margin-top: 28px; }
+.checkout-account { margin: 16px 0; color: var(--muted); font-size: 10px; line-height: 1.7; }
+.checkout-account strong { color: var(--ink); }
+@media (max-width: 650px) {
+  .account-link { font-size: 10px; }
+  .header-actions { gap: 8px; }
+  .account-header { min-height: 66px; padding: 0 5%; }
+  .account-main, .dashboard-main { margin-top: 32px; margin-bottom: 32px; }
+  .dashboard-main { width: min(100% - 30px, 1050px); }
+  .dashboard-grid { grid-template-columns: 1fr; }
+  .account-nav { gap: 9px; font-size: 9px; }
+  .seller-dashboard .dashboard-heading { padding: 24px; }
+}

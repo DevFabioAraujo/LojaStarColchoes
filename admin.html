@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f7f5ef">
+  <meta name="description" content="Administração da loja Star Colchões.">
+  <title>Painel administrativo — Star Colchões</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/auth.css">
+  <script src="/js/admin.js" defer></script>
+</head>
+<body class="account-page">
+  <header class="account-header">
+    <a class="brand" href="/" aria-label="Star Colchões, página inicial"><span class="brand-mark" aria-hidden="true">✳</span><span>star<span class="brand-light">colchões</span></span></a>
+    <nav class="account-nav" aria-label="Painel administrativo"><span id="admin-name"></span><a class="text-link" href="/account">Minha conta</a><button class="account-logout" id="admin-logout" type="button">Sair</button></nav>
+  </header>
+  <main class="dashboard-main">
+    <section class="dashboard-heading">
+      <p class="eyebrow"><span class="eyebrow-line"></span> Administração</p>
+      <h1>Contas de vendedores.</h1>
+      <p class="account-intro">Crie o acesso de cada vendedor. Compartilhe a senha inicial em particular e peça que ele a troque ao entrar.</p>
+    </section>
+    <div class="dashboard-grid">
+      <section class="account-card">
+        <h2>Novo vendedor</h2>
+        <form id="seller-form">
+          <label>Nome completo<input name="name" autocomplete="name" required minlength="3" maxlength="100"></label>
+          <label>E-mail<input name="email" type="email" autocomplete="email" required maxlength="254"></label>
+          <label>Senha inicial<input name="password" type="password" autocomplete="new-password" required minlength="12" maxlength="72" aria-describedby="seller-password-help"></label>
+          <span class="password-help" id="seller-password-help">Use pelo menos 12 caracteres. Oriente o vendedor a trocar a senha após entrar.</span>
+          <p class="form-error" id="seller-error" role="alert"></p>
+          <p class="form-success" id="seller-success" role="status"></p>
+          <button class="button button-dark account-submit" type="submit">Criar acesso <span aria-hidden="true">↗</span></button>
+        </form>
+      </section>
+      <section class="account-card seller-list-card">
+        <h2>Vendedores cadastrados</h2>
+        <p class="form-error" id="seller-list-error" role="alert"></p>
+        <ul class="seller-list" id="seller-list" aria-live="polite"></ul>
+      </section>
+    </div>
+    <p class="dashboard-note">Este painel inicial administra acessos. As funções de vendas e gestão serão implementadas nas próximas etapas.</p>
+  </main>
+</body>
+</html>

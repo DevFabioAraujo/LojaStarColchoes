@@ -10,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/auth.css">
   <script src="/js/app.js" defer></script>
 </head>
 <body>
@@ -32,6 +33,8 @@
       <button class="icon-button search-toggle" type="button" aria-label="Buscar produtos" id="search-toggle">
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"></circle><path d="m16 16 5 5"></path></svg>
       </button>
+      <a class="account-link" href="/account" id="account-link">Entrar</a>
+      <button class="account-logout" type="button" id="header-logout" hidden>Sair</button>
       <button class="cart-button" type="button" id="cart-open" aria-label="Abrir sacola">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l1 12H4L5 8Z"></path><path d="M9 9V6a3 3 0 0 1 6 0v3"></path></svg>
         <span class="cart-label">Sacola</span><span class="cart-count" id="cart-count">0</span>
@@ -151,8 +154,8 @@
     <section class="checkout-modal" role="dialog" aria-modal="true" aria-labelledby="checkout-title">
       <div class="modal-header"><div><p class="eyebrow">Quase lá</p><h2 id="checkout-title">Onde entregamos?</h2></div><button class="close-button" type="button" id="checkout-close" aria-label="Fechar">×</button></div>
       <p class="checkout-summary" id="checkout-summary"></p>
+      <p class="checkout-account" id="checkout-account"></p>
       <form id="checkout-form">
-        <div class="form-row"><label>Nome completo<input name="name" autocomplete="name" required minlength="3" placeholder="Seu nome"></label><label>E-mail<input name="email" type="email" autocomplete="email" required placeholder="voce@email.com"></label></div>
         <div class="form-row"><label>Telefone<input name="phone" type="tel" autocomplete="tel" required placeholder="(11) 99999-9999"></label><label>CEP<input name="zip" autocomplete="postal-code" required placeholder="00000-000"></label></div>
         <label>Endereço completo<input name="address" autocomplete="street-address" required placeholder="Rua, número e complemento"></label>
         <label>Cidade e estado<input name="city" autocomplete="address-level2" required placeholder="São Paulo, SP"></label>

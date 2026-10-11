@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f7f5ef">
+  <meta name="description" content="Acesse sua conta Star Colchões.">
+  <title>Sua conta — Star Colchões</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/auth.css">
+  <script src="/js/account.js" defer></script>
+</head>
+<body class="account-page">
+  <header class="account-header">
+    <a class="brand" href="/" aria-label="Star Colchões, página inicial"><span class="brand-mark" aria-hidden="true">✳</span><span>star<span class="brand-light">colchões</span></span></a>
+    <a class="text-link" href="/">Voltar à loja <span aria-hidden="true">↗</span></a>
+  </header>
+  <main class="account-main">
+    <section class="account-card" id="auth-panel">
+      <p class="eyebrow"><span class="eyebrow-line"></span> Bem-vindo à Star</p>
+      <h1 id="auth-title">Acesse sua conta.</h1>
+      <p class="account-intro">Entre para acompanhar sua experiência e finalizar suas compras.</p>
+      <div class="auth-tabs" role="group" aria-label="Tipo de acesso">
+        <button class="auth-tab active" type="button" data-mode="login">Entrar</button>
+        <button class="auth-tab" type="button" data-mode="register">Criar conta</button>
+      </div>
+      <form id="login-form">
+        <label>E-mail<input name="email" type="email" autocomplete="email" required maxlength="254" placeholder="voce@email.com"></label>
+        <label>Senha<input name="password" type="password" autocomplete="current-password" required></label>
+        <p class="form-error" id="login-error" role="alert"></p>
+        <button class="button button-dark account-submit" type="submit">Entrar <span aria-hidden="true">↗</span></button>
+      </form>
+      <form id="register-form" hidden>
+        <label>Nome completo<input name="name" autocomplete="name" required minlength="3" maxlength="100" placeholder="Seu nome"></label>
+        <label>E-mail<input name="email" type="email" autocomplete="email" required maxlength="254" placeholder="voce@email.com"></label>
+        <label>Senha<input name="password" type="password" autocomplete="new-password" required minlength="12" maxlength="72" aria-describedby="password-help"></label>
+        <span class="password-help" id="password-help">Use pelo menos 12 caracteres.</span>
+        <p class="form-error" id="register-error" role="alert"></p>
+        <button class="button button-dark account-submit" type="submit">Criar conta <span aria-hidden="true">↗</span></button>
+      </form>
+      <p class="account-footnote">Contas de vendedor são criadas somente pelo administrador da loja.</p>
+    </section>
+
+    <section class="account-card" id="account-home" hidden>
+      <p class="eyebrow"><span class="eyebrow-line"></span> Sua conta</p>
+      <h1>Olá, <span id="account-name"></span>.</h1>
+      <p class="account-intro" id="account-email"></p>
+      <a class="button button-dark account-destination" id="account-destination" href="/">Continuar <span aria-hidden="true">↗</span></a>
+      <form id="password-form" class="password-form">
+        <h2>Trocar senha</h2>
+        <label>Senha atual<input name="currentPassword" type="password" autocomplete="current-password" required></label>
+        <label>Nova senha<input name="newPassword" type="password" autocomplete="new-password" required minlength="12" maxlength="72"></label>
+        <p class="form-error" id="password-error" role="alert"></p>
+        <p class="form-success" id="password-success" role="status"></p>
+        <button class="button button-dark account-submit" type="submit">Atualizar senha</button>
+      </form>
+      <button class="account-logout account-logout-large" id="account-logout" type="button">Sair da conta</button>
+    </section>
+  </main>
+  <div class="toast" id="auth-toast" role="status" aria-live="polite"></div>
+</body>
+</html>

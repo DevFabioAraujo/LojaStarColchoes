@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f7f5ef">
+  <meta name="description" content="Encontre o colchão ideal para suas noites. Conforto, qualidade e entrega grátis na Star Colchões.">
+  <title>Star Colchões — Seu melhor descanso começa aqui</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+  <div class="announcement">
+    <p>Seu descanso merece mais <span>— frete grátis em todo o Brasil</span></p>
+    <a href="#colecao">Descubra a coleção <span aria-hidden="true">↗</span></a>
+  </div>
+  <header class="site-header">
+    <a class="brand" href="#" aria-label="Star Colchões, página inicial">
+      <span class="brand-mark" aria-hidden="true">✳</span>
+      <span>star<span class="brand-light">colchões</span></span>
+    </a>
+    <nav class="main-nav" aria-label="Navegação principal">
+      <a href="#colecao">Colchões</a>
+      <a href="#beneficios">Por que Star?</a>
+      <a href="#avaliacoes">Avaliações</a>
+      <a href="#ajuda">Ajuda</a>
+    </nav>
+    <div class="header-actions">
+      <button class="icon-button search-toggle" type="button" aria-label="Buscar produtos" id="search-toggle">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"></circle><path d="m16 16 5 5"></path></svg>
+      </button>
+      <button class="cart-button" type="button" id="cart-open" aria-label="Abrir sacola">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l1 12H4L5 8Z"></path><path d="M9 9V6a3 3 0 0 1 6 0v3"></path></svg>
+        <span class="cart-label">Sacola</span><span class="cart-count" id="cart-count">0</span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="eyebrow-line"></span> O jeito novo de dormir bem</p>
+        <h1>Seu melhor<br>descanso <em>começa aqui.</em></h1>
+        <p class="hero-description">Acorde renovado com o colchão feito para o seu jeito de dormir. Conforto de verdade, noite após noite.</p>
+        <div class="hero-actions">
+          <a class="button button-dark" href="#colecao">Encontre seu colchão <span aria-hidden="true">↗</span></a>
+          <div class="hero-rating"><span class="stars">★★★★★</span><span><strong>4,9/5</strong> de mais de 2.400 clientes</span></div>
+        </div>
+        <div class="hero-footnote"><span class="check-icon">✓</span> 100 noites para experimentar, sem pressa.</div>
+      </div>
+      <div class="hero-image-wrap">
+        <img class="hero-image" src="https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=1500&q=85" alt="Quarto aconchegante com cama ampla e roupa de cama clara">
+        <div class="image-note"><span class="note-sparkle">✳</span><span>Feito para você<br><strong>acordar melhor.</strong></span></div>
+        <div class="hero-image-caption">DESACELERE. RESPIRE. DURMA.</div>
+      </div>
+      <div class="hero-side-label">DESCANSO COM INTENÇÃO · DESDE 2014</div>
+    </section>
+
+    <section class="trust-strip" id="beneficios" aria-label="Benefícios">
+      <div><span class="trust-icon">☼</span><p><strong>100 noites</strong><br>para experimentar</p></div>
+      <div><span class="trust-icon">⌁</span><p><strong>Frete grátis</strong><br>para todo o Brasil</p></div>
+      <div><span class="trust-icon">◇</span><p><strong>10 anos</strong><br>de garantia</p></div>
+      <div><span class="trust-icon">♡</span><p><strong>Feito no Brasil</strong><br>com muito cuidado</p></div>
+    </section>
+
+    <section class="collection section-wrap" id="colecao">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow"><span class="eyebrow-line"></span> A coleção</p>
+          <h2>Uma noite boa<br>muda <em>tudo.</em></h2>
+        </div>
+        <p class="section-intro">Cada corpo é único. Por isso criamos opções para todos os jeitos de dormir — encontre a sua.</p>
+      </div>
+      <div class="catalog-tools">
+        <div class="category-tabs" role="group" aria-label="Filtrar por categoria">
+          <button class="filter-chip active" type="button" data-category="todos">Todos <span id="all-count"></span></button>
+          <button class="filter-chip" type="button" data-category="espuma">Espuma</button>
+          <button class="filter-chip" type="button" data-category="molas">Molas</button>
+          <button class="filter-chip" type="button" data-category="hibrido">Híbridos</button>
+        </div>
+        <label class="sort-control">Ordenar por
+          <select id="sort-products" aria-label="Ordenar produtos">
+            <option value="featured">Destaques</option>
+            <option value="price-asc">Menor preço</option>
+            <option value="price-desc">Maior preço</option>
+            <option value="rating">Melhor avaliados</option>
+          </select>
+        </label>
+      </div>
+      <form class="search-bar" id="search-bar" role="search">
+        <label for="product-search">Buscar colchões</label>
+        <input id="product-search" type="search" placeholder="O que você procura?" autocomplete="off">
+        <button type="submit" aria-label="Pesquisar">⌕</button>
+      </form>
+      <div class="product-grid" id="product-grid" aria-live="polite">
+        <div class="loading-state">Preparando uma seleção especial para você...</div>
+      </div>
+      <p class="catalog-note">Todos os colchões incluem entrega grátis e 100 noites para experimentar.</p>
+    </section>
+
+    <section class="quote-banner">
+      <div class="quote-mark">“</div>
+      <blockquote>Não é só sobre dormir.<br>É sobre <em>como você vive</em> quando acorda.</blockquote>
+      <span>O sono transforma tudo.</span>
+    </section>
+
+    <section class="story-section section-wrap" id="avaliacoes">
+      <div class="story-image">
+        <img src="https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=1200&q=85" alt="Ambiente sereno e natural pensado para noites de descanso">
+        <div class="story-badge"><strong>4,9</strong><span>★★★★★<br>avaliação média</span></div>
+      </div>
+      <div class="story-copy">
+        <p class="eyebrow"><span class="eyebrow-line"></span> Descanso de verdade</p>
+        <h2>Mais do que um colchão.<br><em>Seu ritual de bem-estar.</em></h2>
+        <p>Passamos um terço da vida dormindo. Acreditamos que cada minuto deve ser bem vivido — e que acordar com energia muda o jeito de encarar o dia.</p>
+        <div class="review-quote">
+          <span class="stars">★★★★★</span>
+          <p>“Pela primeira vez acordo sem dores nas costas. Parece que finalmente encontrei meu lugar no mundo.”</p>
+          <span class="review-author">Mariana L. <span>· Compra verificada</span></span>
+        </div>
+        <a class="text-link" href="#colecao">Conheça nossos colchões <span aria-hidden="true">↗</span></a>
+      </div>
+    </section>
+
+    <section class="newsletter" id="ajuda">
+      <div><p class="eyebrow"><span class="eyebrow-line"></span> Um carinho na sua caixa de entrada</p><h2>Boas noites começam<br>com boas <em>novidades.</em></h2></div>
+      <form class="newsletter-form" id="newsletter-form"><label for="newsletter-email">Seu melhor e-mail</label><div><input id="newsletter-email" type="email" placeholder="voce@email.com" required><button type="submit" aria-label="Inscrever-se">↗</button></div><span>Sem spam. Só boas noites e novidades da Star.</span></form>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <a class="brand footer-brand" href="#"><span class="brand-mark" aria-hidden="true">✳</span><span>star<span class="brand-light">colchões</span></span></a>
+    <p>Feito com cuidado. Pensado para o seu descanso.</p>
+    <div class="footer-links"><a href="#colecao">Colchões</a><a href="#beneficios">Nossa história</a><a href="#ajuda">Atendimento</a></div>
+    <span class="copyright">© 2026 Star Colchões · Todos os direitos reservados.</span>
+    <span class="demo-disclosure">Projeto demonstrativo: confirme preços, avaliações, garantias, prazos e condições comerciais antes de publicar.</span>
+  </footer>
+
+  <div class="overlay" id="cart-overlay" hidden></div>
+  <aside class="cart-drawer" id="cart-drawer" aria-label="Sua sacola" aria-hidden="true">
+    <div class="drawer-header"><div><p class="eyebrow">Sua seleção</p><h2>Sacola <span id="drawer-count">(0)</span></h2></div><button class="close-button" type="button" id="cart-close" aria-label="Fechar sacola">×</button></div>
+    <div class="cart-items" id="cart-items"></div>
+    <div class="cart-empty" id="cart-empty"><span>✳</span><h3>Sua sacola está descansando.</h3><p>Que tal encontrar o colchão perfeito para suas noites?</p><button class="button button-dark" id="continue-shopping" type="button">Ver colchões</button></div>
+    <div class="drawer-footer" id="drawer-footer" hidden><p class="shipping-note"><span>✓</span> Você ganhou frete grátis!</p><div class="subtotal"><span>Subtotal</span><strong id="cart-subtotal">R$ 0,00</strong></div><p class="installment-note">Pagamento seguro · até 10x sem juros</p><button class="button button-dark checkout-button" type="button" id="checkout-open">Finalizar pedido <span>↗</span></button></div>
+  </aside>
+
+  <div class="modal-backdrop" id="checkout-modal" hidden>
+    <section class="checkout-modal" role="dialog" aria-modal="true" aria-labelledby="checkout-title">
+      <div class="modal-header"><div><p class="eyebrow">Quase lá</p><h2 id="checkout-title">Onde entregamos?</h2></div><button class="close-button" type="button" id="checkout-close" aria-label="Fechar">×</button></div>
+      <p class="checkout-summary" id="checkout-summary"></p>
+      <form id="checkout-form">
+        <div class="form-row"><label>Nome completo<input name="name" autocomplete="name" required minlength="3" placeholder="Seu nome"></label><label>E-mail<input name="email" type="email" autocomplete="email" required placeholder="voce@email.com"></label></div>
+        <div class="form-row"><label>Telefone<input name="phone" type="tel" autocomplete="tel" required placeholder="(11) 99999-9999"></label><label>CEP<input name="zip" autocomplete="postal-code" required placeholder="00000-000"></label></div>
+        <label>Endereço completo<input name="address" autocomplete="street-address" required placeholder="Rua, número e complemento"></label>
+        <label>Cidade e estado<input name="city" autocomplete="address-level2" required placeholder="São Paulo, SP"></label>
+        <p class="form-error" id="checkout-error" role="alert"></p>
+        <button class="button button-dark checkout-submit" type="submit">Confirmar pedido <span>↗</span></button>
+        <p class="secure-note">Seus dados são usados apenas para processar este pedido.</p>
+      </form>
+    </section>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

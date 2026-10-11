@@ -15,6 +15,12 @@
     "express-rate-limit": "^8.7.1",
     "express-session": "^1.19.0",
     "helmet": "^8.3.0",
-    "sqlite3": "^5.1.7"
+    "sqlite3": "^6.0.1"
+  },
+  "overrides": {
+    "sqlite3": "$sqlite3"
+  },
+  "engines": {
+    "node": ">=20.17.0"
   }
 }

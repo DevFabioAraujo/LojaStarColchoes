@@ -6,7 +6,7 @@ Produtos, preços, avaliações, depoimento, garantias, prazos e condições com
 
 ## Requisitos
 
-- Node.js 18 ou superior
+- Node.js 20.17 ou superior
 - npm
 
 ## Executar localmente

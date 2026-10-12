@@ -558,6 +558,41 @@ app.delete("/api/admin/products/:id", requireAdmin, async (request, response, ne
   }
 });
 
+app.get("/api/admin/users", requireAdmin, async (request, response, next) => {
+  try {
+    const users = await all(
+      "SELECT id, name, email, role, created_at FROM users ORDER BY role = 'admin' DESC, created_at DESC",
+    );
+    response.json(users.map(user => ({ ...user, is_current: user.id === request.user.id })));
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.put("/api/admin/users/:id/role", requireAdmin, async (request, response, next) => {
+  const { role } = request.body || {};
+  const userId = Number(request.params.id);
+  if (!["customer", "seller", "admin"].includes(role)) {
+    return response.status(400).json({ error: "Selecione um perfil válido." });
+  }
+  if (!Number.isInteger(userId) || userId < 1) {
+    return response.status(404).json({ error: "Usuário não encontrado." });
+  }
+  if (userId === request.user.id) {
+    return response.status(400).json({ error: "Você não pode alterar o seu próprio perfil." });
+  }
+  try {
+    const result = await run(
+      "UPDATE users SET role = ?, session_version = session_version + 1 WHERE id = ?",
+      [role, userId],
+    );
+    if (!result.changes) return response.status(404).json({ error: "Usuário não encontrado." });
+    response.json({ id: userId, role });
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.get("/api/admin/customers", requireAdmin, async (request, response, next) => {
   try {
     const customers = await all(

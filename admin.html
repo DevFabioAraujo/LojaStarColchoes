@@ -31,6 +31,7 @@
       <button class="admin-tab" type="button" data-section="orders" aria-selected="false">Pedidos</button>
       <button class="admin-tab" type="button" data-section="customers" aria-selected="false">Clientes</button>
       <button class="admin-tab" type="button" data-section="sellers" aria-selected="false">Vendedores</button>
+      <button class="admin-tab" type="button" data-section="users" aria-selected="false">Usuários</button>
     </nav>
 
     <p class="form-error admin-error" id="admin-error" role="alert"></p>
@@ -121,6 +122,14 @@
           <ul class="admin-list" id="seller-list" aria-live="polite"></ul>
         </section>
       </div>
+    </section>
+
+    <section class="admin-section" id="section-users" hidden>
+      <section class="account-card admin-list-card">
+        <h2>Acesso ao painel</h2>
+        <p class="password-help">Quem tem o perfil Administrador vê e usa este painel. A alteração encerra a sessão ativa do usuário. Você não pode alterar o seu próprio perfil.</p>
+        <ul class="admin-list" id="user-list" aria-live="polite"></ul>
+      </section>
     </section>
   </main>
 </body>

@@ -115,6 +115,25 @@ async function loadSellers() {
     </li>`).join("");
 }
 
+const roleLabels = { customer: "Cliente", seller: "Vendedor", admin: "Administrador" };
+
+async function loadUsers() {
+  const users = await readResponse(await fetch("/api/admin/users"));
+  const list = document.querySelector("#user-list");
+  if (!users.length) return showEmpty(list, "Nenhum usuário cadastrado.");
+  list.innerHTML = users.map(user => `
+    <li class="admin-list-entry">
+      <div class="admin-entry-content">
+        <strong>${escapeHtml(user.name)}${user.is_current ? " (você)" : ""}</strong>
+        <span>${escapeHtml(user.email)}</span>
+        <small>Cadastrado em ${formattedDate(user.created_at)}</small>
+      </div>
+      <select class="admin-role-select" data-user-id="${user.id}" data-current-role="${user.role}" aria-label="Perfil de ${escapeHtml(user.name)}" ${user.is_current ? "disabled" : ""}>
+        ${Object.entries(roleLabels).map(([value, label]) => `<option value="${value}"${value === user.role ? " selected" : ""}>${label}</option>`).join("")}
+      </select>
+    </li>`).join("");
+}
+
 async function openSection(section) {
   document.querySelectorAll(".admin-tab").forEach(tab => {
     const active = tab.dataset.section === section;
@@ -130,6 +149,7 @@ async function openSection(section) {
     if (section === "orders") await loadOrders();
     if (section === "customers") await loadCustomers();
     if (section === "sellers") await loadSellers();
+    if (section === "users") await loadUsers();
   } catch (error) {
     console.error(`Não foi possível carregar a seção ${section}.`, error);
     document.querySelector("#admin-error").textContent = error.message;
@@ -227,6 +247,29 @@ document.querySelector("#product-list").addEventListener("click", async event =>
   } catch (error) {
     document.querySelector("#admin-error").textContent = error.message;
     deleteButton.disabled = false;
+  }
+});
+
+document.querySelector("#user-list").addEventListener("change", async event => {
+  const select = event.target.closest(".admin-role-select");
+  if (!select) return;
+  const user = select.closest("li").querySelector("strong").textContent;
+  if (!window.confirm(`Alterar o perfil de ${user} para ${roleLabels[select.value]}?`)) {
+    select.value = select.dataset.currentRole;
+    return;
+  }
+  select.disabled = true;
+  try {
+    await readResponse(await fetch(`/api/admin/users/${encodeURIComponent(select.dataset.userId)}/role`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ role: select.value }),
+    }));
+    await Promise.all([loadUsers(), loadSummary()]);
+  } catch (error) {
+    document.querySelector("#admin-error").textContent = error.message;
+    select.value = select.dataset.currentRole;
+    select.disabled = false;
   }
 });
 

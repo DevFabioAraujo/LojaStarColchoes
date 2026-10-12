@@ -55,6 +55,7 @@ Use senhas e segredos próprios, não os valores de exemplo, e não os inclua no
 - `POST /api/auth/password`: troca a senha da conta autenticada e encerra as outras sessões.
 - `GET /api/admin/summary`, `/api/admin/products`, `/api/admin/orders`, `/api/admin/customers` e `/api/admin/sellers`: indicadores e consultas administrativas, somente para administradores.
 - `POST /api/admin/products`, `PUT /api/admin/products/:id` e `DELETE /api/admin/products/:id`: criação, edição e exclusão de produtos. Produtos associados a pedidos não podem ser excluídos.
+- `GET /api/admin/users` e `PUT /api/admin/users/:id/role`: administradores definem o perfil (cliente, vendedor ou administrador) de cada usuário, o que determina quem acessa o painel. Não é possível alterar o próprio perfil, e a alteração encerra as sessões do usuário afetado.
 - `POST /api/admin/sellers`: criação de vendedores, somente para administradores.
 - `POST /api/orders`: exige uma conta autenticada, calcula o valor no servidor e salva o pedido e seus itens em uma transação SQLite.
 

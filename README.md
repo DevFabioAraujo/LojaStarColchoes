@@ -24,6 +24,20 @@ Para desenvolvimento com reinicialização automática:
 npm run dev
 ```
 
+## Estrutura do projeto
+
+- `public/`: páginas HTML, estilos e scripts enviados ao navegador. As páginas dos painéis não são servidas diretamente como arquivos: `/admin` e `/seller` continuam exigindo autorização.
+- `src/app.js`: montagem do Express e das rotas.
+- `src/routes/`: rotas de autenticação, administração, loja e páginas.
+- `src/middleware/`: configuração de segurança e autorização por perfil.
+- `src/database.js`: conexão, inicialização e operações SQLite.
+- `src/validation.js`: validações e serialização de dados de conta.
+- `src/config/paths.js`: diretórios do projeto, arquivos estáticos e dados.
+- `src/data/products.js`: catálogo inicial de demonstração.
+- `server.js`: inicialização do banco e do servidor HTTP.
+
+Os bancos locais (`data/*.db` e `data/*.sqlite`) são ignorados pelo Git. Configure `DATA_DIRECTORY` para manter esses arquivos fora da pasta do projeto ou em um volume persistente.
+
 ## Contas e acessos
 
 - Clientes criam a própria conta em [http://localhost:3000/account](http://localhost:3000/account), usando e-mail e senha.

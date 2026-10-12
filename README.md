@@ -53,7 +53,9 @@ Use senhas e segredos próprios, não os valores de exemplo, e não os inclua no
 - `POST /api/auth/register`: cria uma conta de cliente; nunca aceita a escolha de uma função privilegiada.
 - `POST /api/auth/login`, `GET /api/auth/me` e `POST /api/auth/logout`: autenticação e sessão.
 - `POST /api/auth/password`: troca a senha da conta autenticada e encerra as outras sessões.
-- `GET /api/admin/sellers` e `POST /api/admin/sellers`: listagem e criação de vendedores, somente para administradores.
+- `GET /api/admin/summary`, `/api/admin/products`, `/api/admin/orders`, `/api/admin/customers` e `/api/admin/sellers`: indicadores e consultas administrativas, somente para administradores.
+- `POST /api/admin/products`, `PUT /api/admin/products/:id` e `DELETE /api/admin/products/:id`: criação, edição e exclusão de produtos. Produtos associados a pedidos não podem ser excluídos.
+- `POST /api/admin/sellers`: criação de vendedores, somente para administradores.
 - `POST /api/orders`: exige uma conta autenticada, calcula o valor no servidor e salva o pedido e seus itens em uma transação SQLite.
 
-Pedidos anteriores à autenticação são preservados; a nova coluna de usuário fica vazia para esses registros antigos. O checkout demonstra a captura do pedido, mas não integra um gateway de pagamento. As imagens e fontes são servidas por provedores externos.
+O painel administrativo permite consultar indicadores, gerenciar o catálogo, consultar pedidos e visualizar clientes e vendedores. Pedidos anteriores à autenticação são preservados; a nova coluna de usuário fica vazia para esses registros antigos. O checkout e os pedidos não integram um gateway de pagamento nem têm fluxo de atualização de status. As imagens e fontes são servidas por provedores externos.

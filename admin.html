@@ -18,32 +18,110 @@
     <a class="brand" href="/" aria-label="Star Colchões, página inicial"><span class="brand-mark" aria-hidden="true">✳</span><span>star<span class="brand-light">colchões</span></span></a>
     <nav class="account-nav" aria-label="Painel administrativo"><span id="admin-name"></span><a class="text-link" href="/account">Minha conta</a><button class="account-logout" id="admin-logout" type="button">Sair</button></nav>
   </header>
-  <main class="dashboard-main">
+  <main class="dashboard-main admin-dashboard">
     <section class="dashboard-heading">
       <p class="eyebrow"><span class="eyebrow-line"></span> Administração</p>
-      <h1>Contas de vendedores.</h1>
-      <p class="account-intro">Crie o acesso de cada vendedor. Compartilhe a senha inicial em particular e peça que ele a troque ao entrar.</p>
+      <h1>Visão geral da loja.</h1>
+      <p class="account-intro">Acompanhe os indicadores, o catálogo, os pedidos e as contas da Star Colchões.</p>
     </section>
-    <div class="dashboard-grid">
-      <section class="account-card">
-        <h2>Novo vendedor</h2>
-        <form id="seller-form">
-          <label>Nome completo<input name="name" autocomplete="name" required minlength="3" maxlength="100"></label>
-          <label>E-mail<input name="email" type="email" autocomplete="email" required maxlength="254"></label>
-          <label>Senha inicial<input name="password" type="password" autocomplete="new-password" required minlength="12" maxlength="72" aria-describedby="seller-password-help"></label>
-          <span class="password-help" id="seller-password-help">Use pelo menos 12 caracteres. Oriente o vendedor a trocar a senha após entrar.</span>
-          <p class="form-error" id="seller-error" role="alert"></p>
-          <p class="form-success" id="seller-success" role="status"></p>
-          <button class="button button-dark account-submit" type="submit">Criar acesso <span aria-hidden="true">↗</span></button>
-        </form>
+
+    <nav class="admin-tabs" aria-label="Seções administrativas">
+      <button class="admin-tab active" type="button" data-section="overview" aria-selected="true">Visão geral</button>
+      <button class="admin-tab" type="button" data-section="products" aria-selected="false">Produtos</button>
+      <button class="admin-tab" type="button" data-section="orders" aria-selected="false">Pedidos</button>
+      <button class="admin-tab" type="button" data-section="customers" aria-selected="false">Clientes</button>
+      <button class="admin-tab" type="button" data-section="sellers" aria-selected="false">Vendedores</button>
+    </nav>
+
+    <p class="form-error admin-error" id="admin-error" role="alert"></p>
+
+    <section class="admin-section" id="section-overview">
+      <div class="admin-metrics" aria-live="polite">
+        <article class="admin-metric"><span>Produtos no catálogo</span><strong id="metric-products">—</strong></article>
+        <article class="admin-metric"><span>Pedidos registrados</span><strong id="metric-orders">—</strong></article>
+        <article class="admin-metric"><span>Clientes</span><strong id="metric-customers">—</strong></article>
+        <article class="admin-metric"><span>Vendedores</span><strong id="metric-sellers">—</strong></article>
+        <article class="admin-metric admin-metric-wide"><span>Valor total registrado em pedidos</span><strong id="metric-sales">—</strong></article>
+      </div>
+      <div class="account-card admin-overview-note">
+        <h2>Pedidos registrados</h2>
+        <p class="account-intro">Os pedidos ficam disponíveis para consulta. Pagamentos e atualização de status ainda não são integrados.</p>
+        <button class="button button-dark" type="button" data-open-section="orders">Consultar pedidos <span aria-hidden="true">↗</span></button>
+      </div>
+    </section>
+
+    <section class="admin-section" id="section-products" hidden>
+      <div class="dashboard-grid admin-product-grid">
+        <section class="account-card">
+          <h2 id="product-form-title">Novo produto</h2>
+          <form id="product-form">
+            <label>Nome<input name="name" required minlength="3" maxlength="100"></label>
+            <label>Categoria
+              <select name="category" required>
+                <option value="espuma">Espuma</option>
+                <option value="molas">Molas</option>
+                <option value="hibrido">Híbrido</option>
+              </select>
+            </label>
+            <label>Descrição<textarea name="description" required maxlength="500" rows="3"></textarea></label>
+            <label>Tamanho<input name="size" required maxlength="100" placeholder="Casal · 138 × 188 cm"></label>
+            <div class="admin-form-row">
+              <label>Preço atual (R$)<input name="price" type="number" required min="1" step="1"></label>
+              <label>Preço original (R$)<input name="original_price" type="number" min="1" step="1"></label>
+            </div>
+            <label>Selo promocional<input name="badge" maxlength="40" placeholder="Opcional"></label>
+            <label>Imagem (URL HTTPS)<input name="image" type="url" required maxlength="2048" placeholder="https://..."></label>
+            <p class="password-help">Avaliações e quantidade de comentários são preservadas ao editar; novos produtos começam sem avaliações.</p>
+            <p class="form-error" id="product-error" role="alert"></p>
+            <p class="form-success" id="product-success" role="status"></p>
+            <div class="admin-form-actions">
+              <button class="button button-dark account-submit" id="product-submit" type="submit">Adicionar produto <span aria-hidden="true">↗</span></button>
+              <button class="button admin-cancel" id="product-cancel" type="button" hidden>Cancelar edição</button>
+            </div>
+          </form>
+        </section>
+        <section class="account-card admin-list-card">
+          <h2>Catálogo de produtos</h2>
+          <ul class="admin-list" id="product-list" aria-live="polite"></ul>
+        </section>
+      </div>
+    </section>
+
+    <section class="admin-section" id="section-orders" hidden>
+      <section class="account-card admin-list-card">
+        <h2>Pedidos recentes</h2>
+        <p class="password-help">Exibindo até 500 pedidos mais recentes. Os dados abaixo registram pedidos feitos no site, não confirmação de pagamento.</p>
+        <ul class="admin-list" id="order-list" aria-live="polite"></ul>
       </section>
-      <section class="account-card seller-list-card">
-        <h2>Vendedores cadastrados</h2>
-        <p class="form-error" id="seller-list-error" role="alert"></p>
-        <ul class="seller-list" id="seller-list" aria-live="polite"></ul>
+    </section>
+
+    <section class="admin-section" id="section-customers" hidden>
+      <section class="account-card admin-list-card">
+        <h2>Clientes cadastrados</h2>
+        <ul class="admin-list" id="customer-list" aria-live="polite"></ul>
       </section>
-    </div>
-    <p class="dashboard-note">Este painel inicial administra acessos. As funções de vendas e gestão serão implementadas nas próximas etapas.</p>
+    </section>
+
+    <section class="admin-section" id="section-sellers" hidden>
+      <div class="dashboard-grid">
+        <section class="account-card">
+          <h2>Novo vendedor</h2>
+          <form id="seller-form">
+            <label>Nome completo<input name="name" autocomplete="name" required minlength="3" maxlength="100"></label>
+            <label>E-mail<input name="email" type="email" autocomplete="email" required maxlength="254"></label>
+            <label>Senha inicial<input name="password" type="password" autocomplete="new-password" required minlength="12" maxlength="72" aria-describedby="seller-password-help"></label>
+            <span class="password-help" id="seller-password-help">Use pelo menos 12 caracteres. Oriente o vendedor a trocar a senha após entrar.</span>
+            <p class="form-error" id="seller-error" role="alert"></p>
+            <p class="form-success" id="seller-success" role="status"></p>
+            <button class="button button-dark account-submit" type="submit">Criar acesso <span aria-hidden="true">↗</span></button>
+          </form>
+        </section>
+        <section class="account-card admin-list-card">
+          <h2>Vendedores cadastrados</h2>
+          <ul class="admin-list" id="seller-list" aria-live="polite"></ul>
+        </section>
+      </div>
+    </section>
   </main>
 </body>
 </html>

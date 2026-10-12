@@ -98,6 +98,63 @@ function normalizeEmail(email) {
   return email.trim().toLowerCase();
 }
 
+function validateProduct(input) {
+  if (!input || typeof input !== "object" || Array.isArray(input)) {
+    return { error: "Informe os dados do produto." };
+  }
+
+  const { name, category, description, size, price, original_price, badge, image } = input;
+  if (typeof name !== "string" || name.trim().length < 3 || name.trim().length > 100) {
+    return { error: "O nome deve ter entre 3 e 100 caracteres." };
+  }
+  if (!["espuma", "molas", "hibrido"].includes(category)) {
+    return { error: "Selecione uma categoria válida." };
+  }
+  if (typeof description !== "string" || !description.trim() || description.trim().length > 500) {
+    return { error: "A descrição deve ter entre 1 e 500 caracteres." };
+  }
+  if (typeof size !== "string" || !size.trim() || size.trim().length > 100) {
+    return { error: "Informe um tamanho de até 100 caracteres." };
+  }
+  if (!Number.isSafeInteger(price) || price < 1) {
+    return { error: "O preço deve ser um valor inteiro positivo em reais." };
+  }
+  const originalPrice = original_price === "" || original_price === null || original_price === undefined
+    ? null
+    : original_price;
+  if (originalPrice !== null && (!Number.isSafeInteger(originalPrice) || originalPrice <= price)) {
+    return { error: "O preço original deve ser inteiro e maior que o preço atual." };
+  }
+  if (badge !== undefined && (typeof badge !== "string" || badge.trim().length > 40)) {
+    return { error: "O selo deve ter no máximo 40 caracteres." };
+  }
+  if (typeof image !== "string" || image.length > 2048) {
+    return { error: "Informe uma imagem válida para o produto." };
+  }
+  let parsedImage;
+  try {
+    parsedImage = new URL(image);
+  } catch {
+    return { error: "Informe uma URL HTTPS válida para a imagem." };
+  }
+  if (parsedImage.protocol !== "https:") {
+    return { error: "A URL da imagem deve usar HTTPS." };
+  }
+
+  return {
+    product: {
+      name: name.trim(),
+      category,
+      description: description.trim(),
+      size: size.trim(),
+      price,
+      originalPrice,
+      badge: typeof badge === "string" ? badge.trim() : "",
+      image: parsedImage.toString(),
+    },
+  };
+}
+
 function validateName(name) {
   return typeof name === "string" && name.trim().length >= 3 && name.trim().length <= 100;
 }
@@ -381,7 +438,9 @@ app.post("/api/auth/password", requireRole(), async (request, response, next) =>
 app.get("/api/admin/sellers", requireAdmin, async (request, response, next) => {
   try {
     const sellers = await all(
-      "SELECT id, name, email, created_at FROM users WHERE role = 'seller' ORDER BY created_at DESC",
+      `SELECT users.id, users.name, users.email, users.created_at, COUNT(orders.id) AS order_count
+       FROM users LEFT JOIN orders ON orders.user_id = users.id
+       WHERE users.role = 'seller' GROUP BY users.id ORDER BY users.created_at DESC`,
     );
     response.json(sellers);
   } catch (error) {
@@ -412,6 +471,146 @@ app.post("/api/admin/sellers", requireAdmin, async (request, response, next) => 
     next(error);
   }
 });
+
+app.get("/api/admin/summary", requireAdmin, async (request, response, next) => {
+  try {
+    const [products, orders, customers, sellers, sales] = await Promise.all([
+      all("SELECT COUNT(*) AS count FROM products"),
+      all("SELECT COUNT(*) AS count FROM orders"),
+      all("SELECT COUNT(*) AS count FROM users WHERE role = 'customer'"),
+      all("SELECT COUNT(*) AS count FROM users WHERE role = 'seller'"),
+      all("SELECT COALESCE(SUM(total), 0) AS total FROM orders"),
+    ]);
+    response.json({
+      products: products[0].count,
+      orders: orders[0].count,
+      customers: customers[0].count,
+      sellers: sellers[0].count,
+      sales: sales[0].total,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/api/admin/products", requireAdmin, async (request, response, next) => {
+  try {
+    const rows = await all(
+      "SELECT id, name, category, description, size, price, original_price, badge, rating, reviews, image FROM products ORDER BY rowid DESC",
+    );
+    response.json(rows);
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/admin/products", requireAdmin, async (request, response, next) => {
+  const validation = validateProduct(request.body);
+  if (validation.error) return response.status(400).json({ error: validation.error });
+  const product = validation.product;
+  const baseId = product.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 80) || "produto";
+  try {
+    let id = baseId;
+    let suffix = 2;
+    while ((await all("SELECT id FROM products WHERE id = ?", [id])).length) {
+      id = `${baseId}-${suffix}`;
+      suffix += 1;
+    }
+    await run(
+      `INSERT INTO products (id, name, category, description, size, price, original_price, badge, rating, reviews, image)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, 0, ?)`,
+      [id, product.name, product.category, product.description, product.size, product.price, product.originalPrice, product.badge, product.image],
+    );
+    response.status(201).json({ product: { id, ...product, rating: 0, reviews: 0 } });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.put("/api/admin/products/:id", requireAdmin, async (request, response, next) => {
+  const validation = validateProduct(request.body);
+  if (validation.error) return response.status(400).json({ error: validation.error });
+  const product = validation.product;
+  try {
+    const result = await run(
+      `UPDATE products SET name = ?, category = ?, description = ?, size = ?, price = ?,
+       original_price = ?, badge = ?, image = ? WHERE id = ?`,
+      [product.name, product.category, product.description, product.size, product.price, product.originalPrice, product.badge, product.image, request.params.id],
+    );
+    if (!result.changes) return response.status(404).json({ error: "Produto não encontrado." });
+    response.json({ product: { id: request.params.id, ...product } });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.delete("/api/admin/products/:id", requireAdmin, async (request, response, next) => {
+  try {
+    const result = await run("DELETE FROM products WHERE id = ?", [request.params.id]);
+    if (!result.changes) return response.status(404).json({ error: "Produto não encontrado." });
+    response.status(204).end();
+  } catch (error) {
+    if (error.code?.startsWith("SQLITE_CONSTRAINT") && /FOREIGN KEY/i.test(error.message)) {
+      return response.status(409).json({ error: "Este produto já faz parte de um pedido e não pode ser excluído." });
+    }
+    next(error);
+  }
+});
+
+app.get("/api/admin/customers", requireAdmin, async (request, response, next) => {
+  try {
+    const customers = await all(
+      `SELECT users.id, users.name, users.email, users.created_at, COUNT(orders.id) AS order_count,
+       COALESCE(SUM(orders.total), 0) AS order_total
+       FROM users LEFT JOIN orders ON orders.user_id = users.id
+       WHERE users.role = 'customer' GROUP BY users.id ORDER BY users.created_at DESC`,
+    );
+    response.json(customers);
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/api/admin/orders", requireAdmin, async (request, response, next) => {
+  try {
+    const rows = await all(
+      `SELECT orders.id, orders.customer_name, orders.email, orders.phone, orders.zip, orders.address,
+       orders.city, orders.total, orders.created_at, order_items.product_name, order_items.unit_price,
+       order_items.quantity
+       FROM orders LEFT JOIN order_items ON order_items.order_id = orders.id
+       ORDER BY orders.created_at DESC, orders.id DESC LIMIT 500`,
+    );
+    const ordersById = new Map();
+    for (const row of rows) {
+      if (!ordersById.has(row.id)) {
+        ordersById.set(row.id, {
+          id: row.id,
+          customer_name: row.customer_name,
+          email: row.email,
+          phone: row.phone,
+          zip: row.zip,
+          address: row.address,
+          city: row.city,
+          total: row.total,
+          created_at: row.created_at,
+          items: [],
+        });
+      }
+      if (row.product_name) {
+        ordersById.get(row.id).items.push({
+          name: row.product_name,
+          unit_price: row.unit_price,
+          quantity: row.quantity,
+        });
+      }
+    }
+    response.json([...ordersById.values()]);
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.get("/api/products", async (request, response, next) => {
   try {
     const rows = await all("SELECT id, name, category, description, size, price, original_price, badge, rating, reviews, image FROM products ORDER BY rowid");

@@ -44,12 +44,15 @@ async function initializeDatabase() {
   )`);
   await run(`CREATE TABLE IF NOT EXISTS orders (
     id INTEGER PRIMARY KEY AUTOINCREMENT, customer_name TEXT NOT NULL, email TEXT NOT NULL,
-    phone TEXT NOT NULL, zip TEXT NOT NULL, address TEXT NOT NULL, city TEXT NOT NULL,
+    phone TEXT NOT NULL, zip TEXT NOT NULL, address TEXT NOT NULL, neighborhood TEXT NOT NULL DEFAULT '', city TEXT NOT NULL,
     total INTEGER NOT NULL CHECK(total >= 0), created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
   )`);
   const orderColumns = await all("PRAGMA table_info(orders)");
   if (!orderColumns.some(column => column.name === "user_id")) {
     await run("ALTER TABLE orders ADD COLUMN user_id INTEGER REFERENCES users(id)");
+  }
+  if (!orderColumns.some(column => column.name === "neighborhood")) {
+    await run("ALTER TABLE orders ADD COLUMN neighborhood TEXT NOT NULL DEFAULT ''");
   }
   await run(`CREATE TABLE IF NOT EXISTS order_items (
     id INTEGER PRIMARY KEY AUTOINCREMENT, order_id INTEGER NOT NULL REFERENCES orders(id),

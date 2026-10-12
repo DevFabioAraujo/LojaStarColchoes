@@ -1,5 +1,5 @@
 const bcrypt = require("bcryptjs");
-const { all, run } = require("../database");
+const { all, run, serializeOrder } = require("../database");
 const { normalizeEmail, validateProduct, validateName, passwordError } = require("../validation");
 const { requireRole } = require("../middleware/auth");
 const requireAdmin = requireRole("admin");
@@ -182,8 +182,8 @@ router.get("/api/admin/orders", requireAdmin, async (request, response, next) =>
   try {
     const rows = await all(
       `SELECT orders.id, orders.customer_name, orders.email, orders.phone, orders.zip, orders.address,
-       orders.city, orders.total, orders.created_at, order_items.product_name, order_items.unit_price,
-       order_items.quantity
+       orders.neighborhood, orders.city, orders.total, orders.created_at, order_items.product_name, order_items.unit_price,
+       order_items.product_id, order_items.quantity
        FROM orders LEFT JOIN order_items ON order_items.order_id = orders.id
        ORDER BY orders.created_at DESC, orders.id DESC LIMIT 500`,
     );
@@ -197,6 +197,7 @@ router.get("/api/admin/orders", requireAdmin, async (request, response, next) =>
           phone: row.phone,
           zip: row.zip,
           address: row.address,
+          neighborhood: row.neighborhood,
           city: row.city,
           total: row.total,
           created_at: row.created_at,
@@ -205,6 +206,7 @@ router.get("/api/admin/orders", requireAdmin, async (request, response, next) =>
       }
       if (row.product_name) {
         ordersById.get(row.id).items.push({
+          product_id: row.product_id,
           name: row.product_name,
           unit_price: row.unit_price,
           quantity: row.quantity,
@@ -212,6 +214,121 @@ router.get("/api/admin/orders", requireAdmin, async (request, response, next) =>
       }
     }
     response.json([...ordersById.values()]);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.put("/api/admin/orders/:id", requireAdmin, async (request, response, next) => {
+  const orderId = Number(request.params.id);
+  const { customer_name, email, phone, zip, address, neighborhood, city, items } = request.body || {};
+  if (!Number.isSafeInteger(orderId) || orderId < 1) {
+    return response.status(404).json({ error: "Pedido não encontrado." });
+  }
+  const fields = { customer_name, email, phone, zip, address, neighborhood, city };
+  if (["customer_name", "email", "phone", "zip", "address", "city"].some(field => (
+    typeof fields[field] !== "string" || !fields[field].trim() || fields[field].trim().length > 250
+  )) || typeof neighborhood !== "string" || neighborhood.trim().length > 250) {
+    return response.status(400).json({ error: "Preencha os dados de contato e entrega com valores válidos." });
+  }
+  if (!validateName(customer_name) || email.trim().length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+    return response.status(400).json({ error: "Informe um nome e um e-mail válidos para o pedido." });
+  }
+  if (typeof phone !== "string" || phone.trim().length > 40 || typeof zip !== "string" || zip.trim().length > 20) {
+    return response.status(400).json({ error: "Telefone ou CEP inválido." });
+  }
+  if (!Array.isArray(items) || items.length === 0 || items.length > 30) {
+    return response.status(400).json({ error: "O pedido precisa ter entre 1 e 30 itens." });
+  }
+
+  const quantities = new Map();
+  for (const item of items) {
+    if (!item || typeof item.productId !== "string" || !item.productId.trim()
+        || !Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > 20
+        || quantities.has(item.productId)) {
+      return response.status(400).json({ error: "Há um produto ou uma quantidade inválida no pedido." });
+    }
+    quantities.set(item.productId, item.quantity);
+  }
+
+  try {
+    const result = await serializeOrder(async () => {
+      const orderRows = await all("SELECT id FROM orders WHERE id = ?", [orderId]);
+      if (!orderRows.length) return { notFound: true };
+
+      const productIds = [...quantities.keys()];
+      const products = await all(
+        `SELECT id, name, price FROM products WHERE id IN (${productIds.map(() => "?").join(",")})`,
+        productIds,
+      );
+      if (products.length !== productIds.length) return { unavailableProduct: true };
+      const total = products.reduce((sum, product) => sum + product.price * quantities.get(product.id), 0);
+      if (!Number.isSafeInteger(total)) {
+        return { invalidTotal: true };
+      }
+
+      await run("BEGIN TRANSACTION");
+      try {
+        await run(
+          `UPDATE orders SET customer_name = ?, email = ?, phone = ?, zip = ?, address = ?, neighborhood = ?, city = ?, total = ?
+           WHERE id = ?`,
+          [customer_name.trim(), email.trim(), phone.trim(), zip.trim(), address.trim(), neighborhood.trim(), city.trim(), total, orderId],
+        );
+        await run("DELETE FROM order_items WHERE order_id = ?", [orderId]);
+        for (const product of products) {
+          await run(
+            `INSERT INTO order_items (order_id, product_id, product_name, unit_price, quantity)
+             VALUES (?, ?, ?, ?, ?)`,
+            [orderId, product.id, product.name, product.price, quantities.get(product.id)],
+          );
+        }
+        await run("COMMIT");
+        return { total };
+      } catch (error) {
+        try {
+          await run("ROLLBACK");
+        } catch (rollbackError) {
+          console.error("Falha ao reverter a edição de um pedido.", rollbackError);
+        }
+        throw error;
+      }
+    });
+    if (result.notFound) return response.status(404).json({ error: "Pedido não encontrado." });
+    if (result.unavailableProduct) return response.status(400).json({ error: "Um dos produtos selecionados não está disponível." });
+    if (result.invalidTotal) return response.status(400).json({ error: "O total do pedido excede o valor permitido." });
+    response.json({ id: orderId, total: result.total });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.delete("/api/admin/orders/:id", requireAdmin, async (request, response, next) => {
+  const orderId = Number(request.params.id);
+  if (!Number.isSafeInteger(orderId) || orderId < 1) {
+    return response.status(404).json({ error: "Pedido não encontrado." });
+  }
+  try {
+    const deleted = await serializeOrder(async () => {
+      const orders = await all("SELECT id FROM orders WHERE id = ?", [orderId]);
+      if (!orders.length) return false;
+
+      await run("BEGIN TRANSACTION");
+      try {
+        await run("DELETE FROM order_items WHERE order_id = ?", [orderId]);
+        await run("DELETE FROM orders WHERE id = ?", [orderId]);
+        await run("COMMIT");
+        return true;
+      } catch (error) {
+        try {
+          await run("ROLLBACK");
+        } catch (rollbackError) {
+          console.error("Falha ao reverter a exclusão de um pedido.", rollbackError);
+        }
+        throw error;
+      }
+    });
+    if (!deleted) return response.status(404).json({ error: "Pedido não encontrado." });
+    response.status(204).end();
   } catch (error) {
     next(error);
   }

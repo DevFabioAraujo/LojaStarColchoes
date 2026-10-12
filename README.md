@@ -42,6 +42,7 @@ Os bancos locais (`data/*.db` e `data/*.sqlite`) são ignorados pelo Git. Config
 
 - Clientes criam a própria conta em [http://localhost:3000/account](http://localhost:3000/account), usando e-mail e senha.
 - É necessário estar conectado para finalizar uma compra. Pedidos ficam associados à conta autenticada, e nome e e-mail vêm do perfil, não dos dados enviados pelo navegador.
+- No checkout, ao informar um CEP válido, o ViaCEP preenche endereço, bairro e cidade/UF. Os campos continuam editáveis; número e complemento devem ser conferidos e completados manualmente. Se a consulta falhar, o endereço pode ser preenchido sem autocomplete.
 - Vendedores não podem se cadastrar como vendedores. O administrador cria as contas no painel em [http://localhost:3000/admin](http://localhost:3000/admin); o acesso do vendedor fica em [http://localhost:3000/seller](http://localhost:3000/seller).
 - O painel de vendedor é, por enquanto, uma área protegida inicial. As funções de vendas serão implementadas em uma próxima etapa.
 - Senhas precisam ter pelo menos 12 caracteres e são armazenadas com hash bcrypt. As sessões ficam no servidor em `data/sessions.sqlite`; o cookie é `HttpOnly`, `SameSite=Lax` e expira após 12 horas. Trocar a senha encerra as outras sessões.
@@ -67,7 +68,7 @@ Use senhas e segredos próprios, não os valores de exemplo, e não os inclua no
 - `POST /api/auth/register`: cria uma conta de cliente; nunca aceita a escolha de uma função privilegiada.
 - `POST /api/auth/login`, `GET /api/auth/me` e `POST /api/auth/logout`: autenticação e sessão.
 - `POST /api/auth/password`: troca a senha da conta autenticada e encerra as outras sessões.
-- `GET /api/admin/summary`, `/api/admin/products`, `/api/admin/orders`, `/api/admin/customers` e `/api/admin/sellers`: indicadores e consultas administrativas, somente para administradores.
+- `GET /api/admin/summary`, `/api/admin/products`, `/api/admin/orders`, `/api/admin/customers` e `/api/admin/sellers`: indicadores e consultas administrativas, somente para administradores. `PUT /api/admin/orders/:id` altera cliente, contato, endereço e itens, recalculando o total pelos preços atuais; `DELETE /api/admin/orders/:id` remove o pedido e seus itens.
 - `POST /api/admin/products`, `PUT /api/admin/products/:id` e `DELETE /api/admin/products/:id`: criação, edição e exclusão de produtos. Produtos associados a pedidos não podem ser excluídos.
 - `GET /api/admin/users` e `PUT /api/admin/users/:id/role`: administradores definem o perfil (cliente, vendedor ou administrador) de cada usuário, o que determina quem acessa o painel. Não é possível alterar o próprio perfil, e a alteração encerra as sessões do usuário afetado.
 - `POST /api/admin/sellers`: criação de vendedores, somente para administradores.

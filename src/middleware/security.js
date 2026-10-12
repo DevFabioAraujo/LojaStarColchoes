@@ -36,6 +36,7 @@ function configureSecurity(app) {
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
+        connectSrc: ["'self'", "https://viacep.com.br"],
         imgSrc: ["'self'", "data:", "https://images.unsplash.com"],
         fontSrc: ["'self'", "https://fonts.gstatic.com"],
         styleSrc: ["'self'", "https://fonts.googleapis.com"],

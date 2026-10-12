@@ -187,6 +187,19 @@
 .admin-order-entry { align-items: flex-start; }
 .admin-order-items { display: grid; gap: 4px; margin: 4px 0 0; padding-left: 16px; color: var(--muted); font-size: 10px; }
 .admin-order-total { flex: 0 0 auto; font-size: 12px; }
+.admin-order-controls { display: grid; justify-items: end; gap: 12px; }
+.order-editor { flex: 1 0 100%; display: grid; gap: 12px; padding: 18px; background: #f7f5ef; }
+.order-editor[hidden] { display: none; }
+.order-editor h3 { margin: 0; font: 600 15px var(--font-display); }
+.order-editor-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.order-editor label { display: grid; gap: 5px; color: var(--muted); font-size: 10px; }
+.order-editor input, .order-editor select { width: 100%; min-width: 0; padding: 9px; border: 1px solid var(--line); background: var(--white); color: var(--ink); font-size: 11px; }
+.order-editor-items { display: grid; gap: 8px; }
+.order-editor-items>strong { font-size: 11px; }
+.order-editor-item { display: grid; grid-template-columns: minmax(0, 1fr) 75px auto; gap: 8px; }
+.order-editor .admin-entry-actions { justify-content: flex-start; }
+.order-editor .button { padding: 10px 14px; border: 0; font-size: 10px; cursor: pointer; }
+.order-editor .button:disabled { opacity: .6; cursor: wait; }
 .admin-role-select { width: auto; min-width: 140px; min-height: 36px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 0; background: #fffefa; color: var(--ink); font: 11px var(--font-body); }
 @media (max-width: 650px) {
   .account-link { font-size: 10px; }
@@ -214,5 +227,10 @@
   .admin-action { padding: 6px; }
   .admin-form-row { grid-template-columns: 1fr; gap: 0; }
   .admin-order-entry { flex-direction: column; }
+  .admin-order-controls { width: 100%; grid-template-columns: 1fr auto; align-items: center; justify-items: start; }
+  .order-editor { width: 100%; padding: 13px; }
+  .order-editor-fields { grid-template-columns: 1fr; }
+  .order-editor-item { grid-template-columns: minmax(0, 1fr) 64px; }
+  .order-editor-item .admin-action-danger { grid-column: 1 / -1; justify-self: start; }
   .admin-order-total { align-self: flex-end; }
 }

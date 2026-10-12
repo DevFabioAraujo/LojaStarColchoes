@@ -156,9 +156,11 @@
       <p class="checkout-summary" id="checkout-summary"></p>
       <p class="checkout-account" id="checkout-account"></p>
       <form id="checkout-form">
-        <div class="form-row"><label>Telefone<input name="phone" type="tel" autocomplete="tel" required placeholder="(11) 99999-9999"></label><label>CEP<input name="zip" autocomplete="postal-code" required placeholder="00000-000"></label></div>
-        <label>Endereço completo<input name="address" autocomplete="street-address" required placeholder="Rua, número e complemento"></label>
-        <label>Cidade e estado<input name="city" autocomplete="address-level2" required placeholder="São Paulo, SP"></label>
+        <div class="form-row"><label>Telefone<input name="phone" type="tel" autocomplete="tel" required placeholder="(11) 99999-9999"></label><label>CEP<input id="checkout-zip" name="zip" type="text" inputmode="numeric" autocomplete="postal-code" pattern="[0-9]{5}-?[0-9]{3}" maxlength="9" required placeholder="00000-000" aria-describedby="checkout-zip-status"></label></div>
+        <p class="zip-lookup-status" id="checkout-zip-status" role="status" aria-live="polite"></p>
+        <label>Endereço<input id="checkout-address" name="address" autocomplete="address-line1" required placeholder="Rua, número e complemento"></label>
+        <label>Bairro<input id="checkout-neighborhood" name="neighborhood" autocomplete="address-level3" required placeholder="Seu bairro"></label>
+        <label>Cidade e estado<input id="checkout-city" name="city" autocomplete="address-level2" required placeholder="São Paulo, SP"></label>
         <p class="form-error" id="checkout-error" role="alert"></p>
         <button class="button button-dark checkout-submit" type="submit">Confirmar pedido <span>↗</span></button>
         <p class="secure-note">Seus dados são usados apenas para processar este pedido.</p>

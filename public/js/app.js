@@ -32,6 +32,94 @@ const elements = {
   headerLogout: document.querySelector("#header-logout"),
 };
 
+const checkoutZip = document.querySelector("#checkout-zip");
+const checkoutAddress = document.querySelector("#checkout-address");
+const checkoutNeighborhood = document.querySelector("#checkout-neighborhood");
+const checkoutCity = document.querySelector("#checkout-city");
+const checkoutZipStatus = document.querySelector("#checkout-zip-status");
+let postalCodeLookupId = 0;
+let lastLookupPostalCode = "";
+let autoFilledAddress = "";
+let autoFilledNeighborhood = "";
+let autoFilledCity = "";
+let postalCodeLookupController = null;
+
+function clearPostalCodeLookup() {
+  postalCodeLookupId += 1;
+  postalCodeLookupController?.abort();
+  postalCodeLookupController = null;
+  if (autoFilledAddress && checkoutAddress.value === autoFilledAddress) checkoutAddress.value = "";
+  if (autoFilledNeighborhood && checkoutNeighborhood.value === autoFilledNeighborhood) checkoutNeighborhood.value = "";
+  if (autoFilledCity && checkoutCity.value === autoFilledCity) checkoutCity.value = "";
+  autoFilledAddress = "";
+  autoFilledNeighborhood = "";
+  autoFilledCity = "";
+  lastLookupPostalCode = "";
+  checkoutZipStatus.textContent = "";
+}
+
+async function lookupPostalCode(postalCode) {
+  if (postalCode.length !== 8 || postalCode === lastLookupPostalCode) return;
+
+  lastLookupPostalCode = postalCode;
+  const lookupId = ++postalCodeLookupId;
+  postalCodeLookupController?.abort();
+  postalCodeLookupController = new AbortController();
+  checkoutZipStatus.textContent = "Consultando CEP...";
+
+  try {
+    const response = await fetch(`https://viacep.com.br/ws/${postalCode}/json/`, {
+      signal: postalCodeLookupController.signal,
+    });
+    if (!response.ok) throw new Error("Não foi possível consultar o CEP.");
+    const result = await response.json();
+    if (lookupId !== postalCodeLookupId || checkoutZip.value.replace(/\D/g, "") !== postalCode) return;
+    if (result.erro) {
+      checkoutZipStatus.textContent = "CEP não encontrado. Confira o número ou preencha o endereço manualmente.";
+      lastLookupPostalCode = "";
+      return;
+    }
+
+    const street = typeof result.logradouro === "string" ? result.logradouro.trim() : "";
+    const neighborhood = typeof result.bairro === "string" ? result.bairro.trim() : "";
+    const city = typeof result.localidade === "string" && typeof result.uf === "string"
+      ? `${result.localidade.trim()}, ${result.uf.trim()}`
+      : "";
+    if (!checkoutAddress.value || checkoutAddress.value === autoFilledAddress) {
+      checkoutAddress.value = street;
+      autoFilledAddress = street;
+    }
+    if (!checkoutNeighborhood.value || checkoutNeighborhood.value === autoFilledNeighborhood) {
+      checkoutNeighborhood.value = neighborhood;
+      autoFilledNeighborhood = neighborhood;
+    }
+    if (!checkoutCity.value || checkoutCity.value === autoFilledCity) {
+      checkoutCity.value = city;
+      autoFilledCity = city;
+    }
+    checkoutZipStatus.textContent = street
+      ? "Endereço localizado. Confira e informe número e complemento."
+      : "CEP localizado. Confira e complete os dados do endereço.";
+  } catch (error) {
+    if (error.name === "AbortError" || lookupId !== postalCodeLookupId) return;
+    console.error("Não foi possível consultar o CEP.", error);
+    checkoutZipStatus.textContent = "Não foi possível consultar o CEP. Preencha o endereço manualmente.";
+    lastLookupPostalCode = "";
+  }
+}
+
+checkoutZip.addEventListener("input", () => {
+  const postalCode = checkoutZip.value.replace(/\D/g, "").slice(0, 8);
+  checkoutZip.value = postalCode.length > 5
+    ? `${postalCode.slice(0, 5)}-${postalCode.slice(5)}`
+    : postalCode;
+
+  if (postalCode !== lastLookupPostalCode && (lastLookupPostalCode || postalCode.length !== 8)) {
+    clearPostalCodeLookup();
+  }
+  if (postalCode.length === 8) lookupPostalCode(postalCode);
+});
+
 function loadCart() {
   try {
     const stored = JSON.parse(localStorage.getItem(cartKey) || "[]");

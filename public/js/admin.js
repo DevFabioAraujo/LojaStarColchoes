@@ -1,6 +1,7 @@
 const money = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 let editingProductId = null;
 let productsCache = [];
+let orderProductsCache = [];
 
 async function readResponse(response) {
   const result = response.status === 204 ? null : await response.json();
@@ -70,7 +71,15 @@ async function loadProducts() {
 }
 
 async function loadOrders() {
-  const orders = await readResponse(await fetch("/api/admin/orders"));
+  const [ordersResponse, productsResponse] = await Promise.all([
+    fetch("/api/admin/orders"),
+    fetch("/api/admin/products"),
+  ]);
+  const [orders, products] = await Promise.all([
+    readResponse(ordersResponse),
+    readResponse(productsResponse),
+  ]);
+  orderProductsCache = products;
   const list = document.querySelector("#order-list");
   if (!orders.length) return showEmpty(list, "Nenhum pedido registrado.");
   list.innerHTML = orders.map(order => `
@@ -78,13 +87,52 @@ async function loadOrders() {
       <div class="admin-entry-content">
         <strong>Pedido #${order.id} · ${escapeHtml(order.customer_name)}</strong>
         <span>${escapeHtml(order.email)} · ${escapeHtml(order.phone)}</span>
-        <span>${escapeHtml(order.address)}, ${escapeHtml(order.city)} · CEP ${escapeHtml(order.zip)}</span>
+        <span>${[order.address, order.neighborhood, order.city].filter(Boolean).map(escapeHtml).join(", ")} · CEP ${escapeHtml(order.zip)}</span>
         <small>${formattedDate(order.created_at)}</small>
         <ul class="admin-order-items">${order.items.map(item => `
           <li>${escapeHtml(item.name)} · ${item.quantity} × ${money.format(item.unit_price)}</li>`).join("")}</ul>
       </div>
-      <strong class="admin-order-total">${money.format(order.total)}</strong>
+      <div class="admin-order-controls">
+        <strong class="admin-order-total">${money.format(order.total)}</strong>
+        <div class="admin-entry-actions">
+          <button class="admin-action" type="button" data-edit-order="${order.id}">Editar</button>
+          <button class="admin-action admin-action-danger" type="button" data-delete-order="${order.id}">Excluir</button>
+        </div>
+      </div>
+      <form class="order-editor" data-order-editor="${order.id}" hidden>
+        <h3>Editar pedido #${order.id}</h3>
+        <div class="order-editor-fields">
+          <label>Nome do cliente<input name="customer_name" maxlength="100" required value="${escapeHtml(order.customer_name)}"></label>
+          <label>E-mail<input name="email" type="email" maxlength="254" required value="${escapeHtml(order.email)}"></label>
+          <label>Telefone<input name="phone" type="tel" maxlength="40" required value="${escapeHtml(order.phone)}"></label>
+          <label>CEP<input name="zip" maxlength="20" required value="${escapeHtml(order.zip)}"></label>
+          <label>Endereço<input name="address" maxlength="250" required value="${escapeHtml(order.address)}"></label>
+          <label>Bairro<input name="neighborhood" maxlength="250" value="${escapeHtml(order.neighborhood || "")}"></label>
+          <label>Cidade e estado<input name="city" maxlength="250" required value="${escapeHtml(order.city)}"></label>
+        </div>
+        <div class="order-editor-items">
+          <strong>Itens do pedido</strong>
+          ${order.items.map(item => renderOrderItemEditor(item.product_id, item.quantity)).join("")}
+        </div>
+        <button class="admin-action" type="button" data-add-order-item="${order.id}">Adicionar item</button>
+        <p class="form-error order-editor-error" role="alert"></p>
+        <div class="admin-entry-actions">
+          <button class="button button-dark" type="submit">Salvar pedido</button>
+          <button class="admin-action" type="button" data-cancel-order="${order.id}">Cancelar</button>
+        </div>
+      </form>
     </li>`).join("");
+}
+
+function renderOrderItemEditor(productId = "", quantity = 1) {
+  return `<div class="order-editor-item" data-order-item>
+    <select name="productId" aria-label="Produto do pedido" required>
+      <option value="">Selecione um produto</option>
+      ${orderProductsCache.map(product => `<option value="${escapeHtml(product.id)}"${product.id === productId ? " selected" : ""}>${escapeHtml(product.name)} · ${money.format(product.price)}</option>`).join("")}
+    </select>
+    <input name="quantity" type="number" aria-label="Quantidade" min="1" max="20" step="1" required value="${quantity}">
+    <button class="admin-action admin-action-danger" type="button" data-remove-order-item aria-label="Remover item">Remover</button>
+  </div>`;
 }
 
 async function loadCustomers() {
@@ -257,6 +305,81 @@ document.querySelector("#product-list").addEventListener("click", async event =>
   } catch (error) {
     document.querySelector("#admin-error").textContent = error.message;
     deleteButton.disabled = false;
+  }
+});
+
+document.querySelector("#order-list").addEventListener("click", async event => {
+  const editButton = event.target.closest("[data-edit-order]");
+  if (editButton) {
+    const editor = editButton.closest(".admin-order-entry").querySelector("[data-order-editor]");
+    editor.hidden = false;
+    editor.querySelector("input").focus();
+    return;
+  }
+
+  const cancelButton = event.target.closest("[data-cancel-order]");
+  if (cancelButton) {
+    cancelButton.closest("[data-order-editor]").hidden = true;
+    return;
+  }
+
+  const addItemButton = event.target.closest("[data-add-order-item]");
+  if (addItemButton) {
+    const editor = addItemButton.closest("[data-order-editor]");
+    editor.querySelector(".order-editor-items").insertAdjacentHTML("beforeend", renderOrderItemEditor());
+    editor.querySelector(".order-editor-item:last-child select").focus();
+    return;
+  }
+
+  const removeItemButton = event.target.closest("[data-remove-order-item]");
+  if (removeItemButton) {
+    const itemRows = removeItemButton.closest(".order-editor-items").querySelectorAll("[data-order-item]");
+    if (itemRows.length > 1) removeItemButton.closest("[data-order-item]").remove();
+    return;
+  }
+
+  const deleteButton = event.target.closest("[data-delete-order]");
+  if (!deleteButton || !window.confirm(`Excluir permanentemente o pedido #${deleteButton.dataset.deleteOrder} e seus itens?`)) return;
+  deleteButton.disabled = true;
+  try {
+    await readResponse(await fetch(`/api/admin/orders/${encodeURIComponent(deleteButton.dataset.deleteOrder)}`, {
+      method: "DELETE",
+    }));
+    await Promise.all([loadOrders(), loadSummary()]);
+  } catch (error) {
+    document.querySelector("#admin-error").textContent = error.message;
+    deleteButton.disabled = false;
+  }
+});
+
+document.querySelector("#order-list").addEventListener("submit", async event => {
+  const form = event.target.closest("[data-order-editor]");
+  if (!form) return;
+  event.preventDefault();
+  const error = form.querySelector(".order-editor-error");
+  const submit = form.querySelector('[type="submit"]');
+  error.textContent = "";
+  submit.disabled = true;
+
+  const fields = Object.fromEntries(new FormData(form).entries());
+  const payload = {
+    ...fields,
+    items: [...form.querySelectorAll("[data-order-item]")].map(item => ({
+      productId: item.querySelector('[name="productId"]').value,
+      quantity: Number(item.querySelector('[name="quantity"]').value),
+    })),
+  };
+  try {
+    await readResponse(await fetch(`/api/admin/orders/${encodeURIComponent(form.dataset.orderEditor)}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    }));
+    await Promise.all([loadOrders(), loadSummary()]);
+  } catch (requestError) {
+    error.textContent = requestError.message;
+  } finally {
+    if (submit.isConnected) submit.disabled = false;
   }
 });
 

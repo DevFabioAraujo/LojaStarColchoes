@@ -14,7 +14,7 @@ router.get("/api/products", async (request, response, next) => {
 
 router.post("/api/orders", requireRole(), async (request, response, next) => {
   const { customer = {}, items } = request.body || {};
-  const requiredFields = ["phone", "zip", "address", "city"];
+  const requiredFields = ["phone", "zip", "address", "neighborhood", "city"];
   if (!customer || typeof customer !== "object" || requiredFields.some(field => typeof customer[field] !== "string" || !customer[field].trim())) {
     return response.status(400).json({ error: "Preencha todos os dados para entrega." });
   }
@@ -43,8 +43,8 @@ router.post("/api/orders", requireRole(), async (request, response, next) => {
       await run("BEGIN TRANSACTION");
       try {
         const order = await run(
-          "INSERT INTO orders (user_id, customer_name, email, phone, zip, address, city, total) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-          [request.user.id, request.user.name.trim(), request.user.email, customer.phone.trim(), customer.zip.trim(), customer.address.trim(), customer.city.trim(), total],
+          "INSERT INTO orders (user_id, customer_name, email, phone, zip, address, neighborhood, city, total) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+          [request.user.id, request.user.name.trim(), request.user.email, customer.phone.trim(), customer.zip.trim(), customer.address.trim(), customer.neighborhood.trim(), customer.city.trim(), total],
         );
         for (const product of productRows) {
           await run(

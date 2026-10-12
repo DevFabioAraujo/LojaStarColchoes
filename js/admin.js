@@ -134,7 +134,17 @@ async function loadUsers() {
     </li>`).join("");
 }
 
+const sectionTitles = {
+  overview: "Visão geral da loja.",
+  products: "Catálogo de produtos.",
+  orders: "Pedidos.",
+  customers: "Clientes.",
+  sellers: "Vendedores.",
+  users: "Acesso ao painel.",
+};
+
 async function openSection(section) {
+  document.querySelector(".dashboard-heading h1").textContent = sectionTitles[section];
   document.querySelectorAll(".admin-tab").forEach(tab => {
     const active = tab.dataset.section === section;
     tab.classList.toggle("active", active);

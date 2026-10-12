@@ -18,21 +18,25 @@
     <a class="brand" href="/" aria-label="Star Colchões, página inicial"><span class="brand-mark" aria-hidden="true">✳</span><span>star<span class="brand-light">colchões</span></span></a>
     <nav class="account-nav" aria-label="Painel administrativo"><span id="admin-name"></span><a class="text-link" href="/account">Minha conta</a><button class="account-logout" id="admin-logout" type="button">Sair</button></nav>
   </header>
-  <main class="dashboard-main admin-dashboard">
+  <main class="admin-layout">
+    <aside class="admin-sidebar">
+      <p class="admin-sidebar-title">Administração</p>
+      <nav class="admin-tabs" aria-label="Seções administrativas">
+        <button class="admin-tab active" type="button" data-section="overview" aria-selected="true"><span class="admin-tab-icon" aria-hidden="true">▦</span>Visão geral</button>
+        <button class="admin-tab" type="button" data-section="products" aria-selected="false"><span class="admin-tab-icon" aria-hidden="true">▢</span>Produtos</button>
+        <button class="admin-tab" type="button" data-section="orders" aria-selected="false"><span class="admin-tab-icon" aria-hidden="true">☰</span>Pedidos</button>
+        <button class="admin-tab" type="button" data-section="customers" aria-selected="false"><span class="admin-tab-icon" aria-hidden="true">☺</span>Clientes</button>
+        <button class="admin-tab" type="button" data-section="sellers" aria-selected="false"><span class="admin-tab-icon" aria-hidden="true">✦</span>Vendedores</button>
+        <button class="admin-tab" type="button" data-section="users" aria-selected="false"><span class="admin-tab-icon" aria-hidden="true">⚿</span>Usuários</button>
+      </nav>
+    </aside>
+
+    <div class="admin-content">
     <section class="dashboard-heading">
       <p class="eyebrow"><span class="eyebrow-line"></span> Administração</p>
       <h1>Visão geral da loja.</h1>
       <p class="account-intro">Acompanhe os indicadores, o catálogo, os pedidos e as contas da Star Colchões.</p>
     </section>
-
-    <nav class="admin-tabs" aria-label="Seções administrativas">
-      <button class="admin-tab active" type="button" data-section="overview" aria-selected="true">Visão geral</button>
-      <button class="admin-tab" type="button" data-section="products" aria-selected="false">Produtos</button>
-      <button class="admin-tab" type="button" data-section="orders" aria-selected="false">Pedidos</button>
-      <button class="admin-tab" type="button" data-section="customers" aria-selected="false">Clientes</button>
-      <button class="admin-tab" type="button" data-section="sellers" aria-selected="false">Vendedores</button>
-      <button class="admin-tab" type="button" data-section="users" aria-selected="false">Usuários</button>
-    </nav>
 
     <p class="form-error admin-error" id="admin-error" role="alert"></p>
 
@@ -131,6 +135,7 @@
         <ul class="admin-list" id="user-list" aria-live="polite"></ul>
       </section>
     </section>
+    </div>
   </main>
 </body>
 </html>

@@ -146,10 +146,15 @@
 .seller-dashboard .dashboard-note { margin-top: 28px; }
 .checkout-account { margin: 16px 0; color: var(--muted); font-size: 10px; line-height: 1.7; }
 .checkout-account strong { color: var(--ink); }
-.admin-dashboard { max-width: 1180px; }
-.admin-tabs { display: flex; gap: 5px; overflow-x: auto; margin: 0 0 24px; border-bottom: 1px solid var(--line); }
-.admin-tab { flex: 0 0 auto; padding: 12px 16px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: var(--muted); font: 500 11px var(--font-body); cursor: pointer; }
-.admin-tab.active { border-bottom-color: var(--green); color: var(--green); font-weight: 700; }
+.admin-layout { display: grid; grid-template-columns: 240px minmax(0, 1fr); min-height: calc(100vh - 76px); }
+.admin-sidebar { position: sticky; top: 0; align-self: start; height: calc(100vh - 76px); padding: 28px 16px; border-right: 1px solid var(--line); background: var(--white); overflow-y: auto; }
+.admin-sidebar-title { margin: 0 12px 14px; color: var(--muted); font-size: 9px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+.admin-content { min-width: 0; padding: 48px clamp(20px, 4vw, 52px) 62px; max-width: 1180px; }
+.admin-tabs { display: flex; flex-direction: column; gap: 3px; }
+.admin-tab { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px; border: 0; border-left: 3px solid transparent; background: transparent; color: var(--muted); font: 500 12px var(--font-body); text-align: left; cursor: pointer; }
+.admin-tab:hover { background: #f2f0e9; color: var(--ink); }
+.admin-tab.active { border-left-color: var(--green); background: #eef1ec; color: var(--green); font-weight: 700; }
+.admin-tab-icon { width: 16px; text-align: center; font-size: 13px; }
 .admin-error { margin-bottom: 14px; }
 .admin-section[hidden], .admin-section [hidden] { display: none; }
 .admin-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
@@ -192,8 +197,13 @@
   .dashboard-grid { grid-template-columns: 1fr; }
   .account-nav { gap: 9px; font-size: 9px; }
   .seller-dashboard .dashboard-heading { padding: 24px; }
-  .admin-tabs { margin-right: -15px; }
-  .admin-tab { padding-right: 12px; padding-left: 12px; }
+  .admin-layout { grid-template-columns: 1fr; min-height: 0; }
+  .admin-sidebar { position: static; height: auto; padding: 10px 8px; border-right: 0; border-bottom: 1px solid var(--line); }
+  .admin-sidebar-title { display: none; }
+  .admin-tabs { flex-direction: row; overflow-x: auto; }
+  .admin-tab { width: auto; flex: 0 0 auto; border-left: 0; border-bottom: 2px solid transparent; padding: 10px 12px; }
+  .admin-tab.active { border-bottom-color: var(--green); }
+  .admin-content { padding: 28px 15px 40px; }
   .admin-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
   .admin-metric { min-height: 98px; padding: 15px; }
   .admin-metric strong { font-size: 23px; }
